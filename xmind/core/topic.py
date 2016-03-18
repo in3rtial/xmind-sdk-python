@@ -21,6 +21,7 @@ from .notes import NotesElement, PlainNotes
 from .markerref import MarkerRefElement
 from .markerref import MarkerRefsElement
 from .markerref import MarkerId
+from .labels import LabelsElement, LabelElement
 
 from .. import utils
 
@@ -52,6 +53,9 @@ class TopicElement(WorkbookMixinElement):
 
     def _get_markerrefs(self):
         return self.getFirstChildNodeByTagName(const.TAG_MARKERREFS)
+
+    def _get_labels(self):
+        return self.getFirstChildNodeByTagName(const.TAG_LABELS)
 
     def _get_position(self):
         return self.getFirstChildNodeByTagName(const.TAG_POSITION)
@@ -134,6 +138,31 @@ class TopicElement(WorkbookMixinElement):
         mre.setMarkerId(markerId)
         tmp.appendChild(mre)
         return mre
+        
+    def getLabels(self):
+        labels_ = self._get_labels()
+        if not labels_:
+            return None
+        tmp = LabelsElement(labels_, self.getOwnerWorkbook())
+        labels = tmp.getChildNodesByTagName(const.TAG_LABEL)
+        label_list = []
+        if labels:
+            for i in labels:
+                label_list.append(LabelElement(i, self.getOwnerWorkbook()))
+        return label_list
+        
+    def addLabel(self, label_text):
+        labels_ = self._get_labels()
+        if not labels_:
+            tmp = LabelsElement(None, self.getOwnerWorkbook())
+            self.appendChild(tmp)
+        else:
+            tmp = LabelsElement(labels_, self.getOwnerWorkbook())
+            
+        label = LabelElement(None, self.getOwnerWorkbook())
+        label.setLabel(label_text)
+        tmp.appendChild(label)
+        return label
 
     def setFolded(self):
         self.setAttribute(const.ATTR_BRANCH, const.VAL_FOLDED)
