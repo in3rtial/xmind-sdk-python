@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 """
     xmind.utils
@@ -25,7 +25,6 @@ from hashlib import md5
 from functools import wraps
 from xml.dom.minidom import parse, parseString
 
-
 temp_dir = tempfile.mkdtemp
 
 
@@ -35,6 +34,7 @@ def extract(path):
 
 def compress(path):
     return zipfile.ZipFile(path, "w")
+
 
 ########################             Path             #########################
 
@@ -86,6 +86,8 @@ def readable_time(timestamp):
 
 parse_dom = parse
 parse_dom_string = parseString
+
+
 # def create_document():
 #     return dom.Document()
 #
@@ -127,6 +129,7 @@ def prevent(func):
         Decorate func with this to prevent raising an Exception when
         an error is encountered
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
@@ -143,18 +146,22 @@ def check(attr):
             Decorate method with this to check whether the object
             has an attribute with the given name.
         """
+
         @wraps(method)
         def wrapper(self, *args, **kwargs):
             if hasattr(self, attr):
                 return method(self, *args, **kwargs)
 
             return None
+
         return wrapper
+
     return decorator
 
 
 def main():
     pass
+
 
 if __name__ == '__main__':
     main()

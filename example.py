@@ -5,6 +5,13 @@ from xmind.core.topic import TopicElement
 
 w = xmind.load("test.xmind") # load an existing file or create a new workbook if nothing is found
 
+
+# quickload block
+w = xmind.load("data/Article.xmind")
+sheet = w.getPrimarySheet()
+root = sheet.getRootTopic()
+
+
 s1=w.getPrimarySheet() # get the first sheet
 s1.setTitle("first sheet") # set its title
 r1=s1.getRootTopic() # get the root topic of this sheet

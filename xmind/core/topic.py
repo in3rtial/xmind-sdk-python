@@ -384,6 +384,8 @@ class TopicElement(WorkbookMixinElement):
 
         notes.appendChild(new)
 
+    def __repr__(self):
+        return self.getTitle()
 
 class ChildrenElement(WorkbookMixinElement):
     TAG_NAME = const.TAG_CHILDREN
