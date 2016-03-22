@@ -4,8 +4,6 @@ import xmind.core.markerref
 import xmind.core.sheet
 
 
-IGNORE_SYMBOL_NAME = "symbol-wrong"
-
 
 def dump_markdown(sheet):
     assert isinstance(sheet, xmind.core.sheet.SheetElement)
@@ -23,9 +21,9 @@ def dump_markdown(sheet):
         markers = []
         if raw_markers is not None:
             markers = [marker.getMarkerId().name for marker in current.getMarkers()]
-        text = current.getTitle()
-
-        if IGNORE_SYMBOL_NAME not in markers:
+        text =  clean_non_unicode(current.getTitle())
+        
+        if "symbol-wrong" not in markers:
 
             # style is based on depth
             # depth 0 : title of workbook, we ignore
@@ -34,19 +32,36 @@ def dump_markdown(sheet):
             #       3/+: phrase within paragraph
             begin_symbol = ""
             end_symbol = ""
-            if current_level == 1:
+            if "priority-1" in markers:
                 begin_symbol = "\n# "
-            elif current_level == 2:
+            elif "priority-2" in markers:
+                begin_symbol = "\n## "
+            elif "priority-3" in markers:
                 begin_symbol = "\n***"
                 end_symbol = "***"
-            document.append("{0}{1}{2}".format(begin_symbol, text, end_symbol))
+            document.append("{0}{1}{2}".format(begin_symbol, str(text), end_symbol))
 
         # continue traversal
         children = current.getSubTopics()
         child_level = current_level
-        if IGNORE_SYMBOL_NAME not in markers:
+        if "symbol-wrong" not in markers:
             child_level += 1
         if children is not None:
             for child in reversed(current.getSubTopics()):
                 stack.append((child, child_level))
     return document
+
+def clean_non_unicode(string):
+    return ''.join([i if ord(i) < 128 else ' ' for i in string])
+
+def write_to_file(document, output_file):
+    with open(output_file, "w") as handle:
+        for line in document:
+            handle.write("{}\n".format(line))
+    return 
+
+
+import argparse
+
+if __name__ == "__main__":
+    
