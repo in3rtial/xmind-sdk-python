@@ -1,8 +1,21 @@
+#!/usr/bin/env python
 """generate an article in markdown format from a correctly formatted xmind workbook"""
+
 import xmind
 import xmind.core.markerref
 import xmind.core.sheet
+import argparse
 
+# style is based on markers
+#       1  : section (abstract/intro/...)
+#       2  : paragraph
+#       3/+: phrase within paragraph
+
+MARKERS_TO_SYMBOLS = {"priority-1": lambda x: "{}{}{}".format("\n# ", x, ""),
+                      "priority-2": lambda x: "{}{}{}".format("\n## ", x, ""),
+                      "priority-3": lambda x: "{}{}{}".format("\n***", x, "***"),
+                      "symbol-exclam":lambda x: "{}".format(x)}
+MARKER_WRONG = "symbol-wrong"
 
 
 def dump_markdown(sheet):
@@ -23,28 +36,14 @@ def dump_markdown(sheet):
             markers = [marker.getMarkerId().name for marker in current.getMarkers()]
         text =  clean_non_unicode(current.getTitle())
         
-        if "symbol-wrong" not in markers:
-
-            # style is based on depth
-            # depth 0 : title of workbook, we ignore
-            #       1  : section (abstract/intro/...)
-            #       2  : paragraph
-            #       3/+: phrase within paragraph
-            begin_symbol = ""
-            end_symbol = ""
-            if "priority-1" in markers:
-                begin_symbol = "\n# "
-            elif "priority-2" in markers:
-                begin_symbol = "\n## "
-            elif "priority-3" in markers:
-                begin_symbol = "\n***"
-                end_symbol = "***"
-            document.append("{0}{1}{2}".format(begin_symbol, str(text), end_symbol))
+        if MARKER_WRONG not in markers:
+            if len(markers) == 1:
+                document.append(MARKERS_TO_SYMBOLS[markers[0]](text))
 
         # continue traversal
         children = current.getSubTopics()
         child_level = current_level
-        if "symbol-wrong" not in markers:
+        if MARKER_WRONG not in markers:
             child_level += 1
         if children is not None:
             for child in reversed(current.getSubTopics()):
@@ -61,7 +60,13 @@ def write_to_file(document, output_file):
     return 
 
 
-import argparse
+
 
 if __name__ == "__main__":
+    PARSER = argparse.ArgumentParser("matrix symmetrizer for RNAdistance")
+    PARSER.add_argument("-i", "--input_file", type=str, help="rna distance matrix file")
+    PARSER.add_argument("-o", "--output", type=str, help="output file")
+    ARGS = PARSER.parse_args()
     
+    IN = ARGS.input_file
+    write_to_file(dump_markdown(xmind.load(IN).getPrimarySheet()), ARGS.output)
