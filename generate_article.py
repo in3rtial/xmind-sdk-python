@@ -39,6 +39,8 @@ def dump_markdown(sheet):
         if MARKER_WRONG not in markers:
             if len(markers) == 1:
                 document.append(MARKERS_TO_SYMBOLS[markers[0]](text))
+            if len(markers) == 0:
+                document.append("{}\n".format(text))
 
         # continue traversal
         children = current.getSubTopics()
